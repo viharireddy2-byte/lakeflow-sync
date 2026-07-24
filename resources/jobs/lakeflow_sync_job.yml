@@ -1,0 +1,67 @@
+resources:
+  jobs:
+    lakeflow_sync_job:
+      name: "lakeflow-sync-${bundle.target}"
+      tags:
+        project: lakeflow-sync
+        environment: ${bundle.target}
+
+      parameters:
+        - name: catalog
+          default: ${var.catalog}
+        - name: dataset
+          default: ${var.bronze_schema}
+
+      tasks:
+        - task_key: full_load_task
+          python_wheel_task:
+            package_name: lakeflow_sync
+            entry_point: pipeline_main
+            parameters:
+              - "--mode"
+              - "full_load"
+              - "--catalog"
+              - "{{job.parameters.catalog}}"
+              - "--dataset"
+              - "{{job.parameters.dataset}}"
+          environment_key: default
+
+        - task_key: cdc_load_task
+          depends_on:
+            - task_key: full_load_task
+          python_wheel_task:
+            package_name: lakeflow_sync
+            entry_point: pipeline_main
+            parameters:
+              - "--mode"
+              - "cdc"
+              - "--catalog"
+              - "{{job.parameters.catalog}}"
+              - "--dataset"
+              - "{{job.parameters.dataset}}"
+          environment_key: default
+
+        - task_key: data_quality_task
+          depends_on:
+            - task_key: cdc_load_task
+          python_wheel_task:
+            package_name: lakeflow_sync
+            entry_point: run_quality_checks
+            parameters:
+              - "--catalog"
+              - "{{job.parameters.catalog}}"
+              - "--dataset"
+              - "{{job.parameters.dataset}}"
+          environment_key: default
+
+      environments:
+        - environment_key: default
+          spec:
+            client: "1"
+            dependencies:
+              - ../../dist/*.whl
+
+      # Manual trigger by default -- see README "Scheduling & Triggers" for
+      # recommended production schedules (hourly batch vs continuous).
+      trigger:
+        pause_status: PAUSED

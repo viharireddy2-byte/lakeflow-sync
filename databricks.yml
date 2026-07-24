@@ -1,0 +1,47 @@
+bundle:
+  name: lakeflow-sync
+
+include:
+  - resources/jobs/*.yml
+
+variables:
+  catalog:
+    description: "Unity Catalog catalog to write Bronze tables into"
+  bronze_schema:
+    description: "Schema (database) inside the catalog holding raw ingested tables"
+    default: bronze
+
+artifacts:
+  lakeflow_sync_wheel:
+    type: whl
+    build: uv build --wheel
+    path: .
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://your-workspace.cloud.databricks.com
+    variables:
+      catalog: dev_orders_lakehouse
+    run_as:
+      user_name: ${workspace.current_user.userName}
+
+  qa:
+    mode: production
+    workspace:
+      host: https://your-workspace.cloud.databricks.com
+    variables:
+      catalog: qa_orders_lakehouse
+    run_as:
+      service_principal_name: ${var.qa_service_principal}
+
+  prod:
+    mode: production
+    workspace:
+      host: https://your-workspace.cloud.databricks.com
+    variables:
+      catalog: prod_orders_lakehouse
+    run_as:
+      service_principal_name: ${var.prod_service_principal}
