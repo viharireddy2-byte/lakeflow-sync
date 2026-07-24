@@ -12,9 +12,6 @@ It supports two operating modes:
 
 - **Full Load** — snapshot-based initial/backfill load using `dlt`'s `sql_database` source.
 - **CDC (Change Data Capture)** — near real-time streaming of `INSERT` / `UPDATE` / `DELETE` events off the Postgres write-ahead log (WAL), appended to Bronze as an **immutable event log** rather than a mirrored copy of the source.
-
-> **Credit:** the dual-mode Full Load + CDC architecture and the "Bronze as an EL-only boundary" philosophy in this project were inspired by [victor-antoniassi/postgres-to-databricks-cdc](https://github.com/victor-antoniassi/postgres-to-databricks-cdc). All code here is an independent implementation, restructured, renamed, and extended with the enhancements described below.
-
 ---
 
 ## 🎯 Project Scope: Ingestion Only (EL, not ELT)
