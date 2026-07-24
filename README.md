@@ -1,6 +1,5 @@
 # lakeflow-sync
 
-[(https://github.com/your-username/lakeflow-sync/actions/workflows/ci.yml/badge.svg)](https://github.com/your-username/lakeflow-sync/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![Code Style](https://img.shields.io/badge/code%20style-ruff-000000)
 ![Type Checker](https://img.shields.io/badge/type%20checker-mypy-blue)
